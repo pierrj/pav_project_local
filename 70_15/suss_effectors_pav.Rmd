@@ -1,0 +1,90 @@
+---
+title: "suss_effectors_pav"
+output: html_document
+date: '2022-11-11'
+---
+
+```{r}
+
+library(ggplot2)
+library(tidyr)
+library(data.table)
+library(readxl)
+
+```
+
+```{r}
+
+df <-data.frame(fread('table_w_rf_pred.txt'))
+
+```
+
+```{r}
+
+ks_cluster <- read_excel('Magnaporthe_Oryza_Structure_prediction_and_clustering_metadata.zenodo.xlsx',skip=3)
+
+ks_cluster <- subset(ks_cluster, select = c(`Cluster...1`, geneID))
+
+colnames(ks_cluster) <- c('cluster', 'id')
+
+```
+
+```{r}
+
+df <- merge(df, ks_cluster, by = "id", all.x = TRUE)
+
+
+```
+
+
+```{r}
+nrow(df)
+```
+
+```{r}
+
+nrow(df[df$predicted_lineage_pav == TRUE,])
+
+```
+
+
+```{r}
+
+clusters <- unique(df$cluster)[! is.na(unique(df$cluster))]
+
+proportion <- c()
+
+number_cluster <- c()
+
+number_cluster_pav <- c()
+
+for (i in seq(from=1, to=length(clusters))){
+  
+  cluster <- clusters[i]
+  
+  df_subset <- na.omit(df)
+  
+  df_subset <- df_subset[df_subset$cluster == cluster,]
+  
+  genes_in_cluster <- nrow(df_subset)
+  
+  pav_genes_in_cluster <- nrow(df_subset[df_subset$predicted_lineage_pav == TRUE,])
+  
+  proportion <- c(proportion, pav_genes_in_cluster/genes_in_cluster)
+  
+  number_cluster <- c(number_cluster, genes_in_cluster)
+  
+  number_cluster_pav <- c(number_cluster_pav, pav_genes_in_cluster)
+  
+}
+
+df_cluster_proportions <- data.frame(clusters,proportion, number_cluster, number_cluster_pav)
+
+```
+
+```{r}
+
+df_cluster_proportions[order(df_cluster_proportions$clusters),]
+
+```
+

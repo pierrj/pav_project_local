@@ -1,0 +1,259 @@
+---
+title: "pav_pca"
+output: html_document
+---
+
+```{r}
+library(ggbiplot)
+library(phytools)
+library(ape)
+library(data.table)
+library(dplyr)
+library(tidyr)
+library(factoextra)
+library(FactoMineR)
+```
+```{r}
+## read in PAV matrix
+df <- data.frame(fread('../../pipeline_methods/pav_matrix.txt', na.strings = ''), row.names =1)
+
+colnames(df)[startsWith(colnames(df),'X')] <- gsub('X', '', colnames(df)[startsWith(colnames(df),'X')])
+
+colnames(df) <- gsub('\\.', '-', colnames(df))
+
+## drop NI907
+
+df <- subset(df, select = -c(NI907))
+
+```
+
+
+```{r}
+## read in lineage info
+
+assembly_stats <- data.frame(fread('../../pipeline_methods/gladieux_et_al_assembly_stats.txt', na.strings = ''))
+
+lineage_info <- subset(assembly_stats, select = c(V1, V3, V4))
+
+colnames(lineage_info) <- c('isolate', 'lineage', 'sublineage')
+
+lineage_info[lineage_info$isolate == 'WD-3-1_1',]$isolate <- 'WD-3-1'
+
+## drop lineage 1
+
+df <- df[, (! colnames(df) %in% lineage_info$isolate[lineage_info$lineage == 1]) ]
+
+lineage_info <- lineage_info[lineage_info$lineage != 1,]
+
+
+```
+
+```{r}
+
+# transpose
+df <- as.data.frame(t(as.matrix(df)))
+```
+
+
+
+```{r}
+# read in new tree
+
+tree <- read.tree('../../pipeline_methods/Single_Copy_Orthologue_Sequences_msas_combined.trimmed.fasttree.rooted.txt')
+
+# prune NI907
+
+tree <- drop.tip(tree,tree$tip.label[match("NI907", tree$tip.label)])
+
+str_split_vector <- function(x, string){
+  output_vector <- c()
+  for ( item in x ) {
+    output <- strsplit(item, string)[[1]][1]
+    output_vector <- c(output_vector, output)
+  }
+  return(output_vector)
+}
+
+tree$tip.label <- str_split_vector(tree$tip.label, '_')
+
+```
+
+```{r}
+
+lineage_differentiating_ogs <- as.character(read.csv("../pca_heat_map_phylogeny/lineage_differentiating_pavs.txt",header=F, stringsAsFactors=FALSE, colClasses="character")$V1)
+
+```
+
+```{r}
+
+nbarc_ogs <- c(
+'OG0011044',
+'OG0004578',
+'OG0004455',
+'OG0000425',
+'OG0012475',
+'OG0012202'
+)
+
+nacht_ogs <- c(
+'OG0000359',
+'OG0010822',
+'OG0000062',
+'OG0009640',
+'OG0000863',
+'OG0000141',
+'OG0007690',
+'OG0011100',
+'OG0007718',
+'OG0000448',
+'OG0005353',
+'OG0005795',
+'OG0009110',
+'OG0000164',
+'OG0002313',
+'OG0000353',
+'OG0002514',
+'OG0009096',
+'OG0010503',
+'OG0012382',
+'OG0011748'
+)
+
+het_ogs <- c(
+'OG0009385',
+'OG0010487',
+'OG0000504',
+'OG0005491',
+'OG0009041',
+'OG0010059',
+'OG0005715',
+'OG0009379',
+'OG0000258',
+'OG0000474',
+'OG0000453',
+'OG0001531',
+'OG0007667',
+'OG0000411',
+'OG0000425',
+'OG0007692',
+'OG0004842',
+'OG0010037',
+'OG0000669',
+'OG0007763',
+'OG0000042',
+'OG0008922',
+'OG0006602',
+'OG0010586',
+'OG0011352',
+'OG0006049',
+'OG0008376',
+'OG0008557',
+'OG0000455',
+'OG0009354',
+'OG0005558',
+'OG0010685',
+'OG0000289',
+'OG0000278',
+'OG0009449',
+'OG0006151',
+'OG0010942',
+'OG0000320',
+'OG0000108',
+'OG0000637',
+'OG0010935',
+'OG0006607',
+'OG0011523'
+)
+
+```
+
+```{r}
+
+lineage_differentiating_nlrs <- c(
+  lineage_differentiating_ogs[lineage_differentiating_ogs %in% nacht_ogs],
+  lineage_differentiating_ogs[lineage_differentiating_ogs %in% nbarc_ogs]
+)
+
+lineage_differentiating_het <- lineage_differentiating_ogs[lineage_differentiating_ogs %in% het_ogs]
+
+```
+
+```{r}
+
+## these are a little clearer, taken by looking at heatmaps
+
+strong_pav_ogs <- c(c('OG0011044','OG0010942'), c('OG0011100','OG0011352'), c('OG0011748','OG0010935'))
+
+lineage_differentiating_het <- lineage_differentiating_het[lineage_differentiating_het%in%strong_pav_ogs]
+
+lineage_differentiating_nlrs <- lineage_differentiating_nlrs[lineage_differentiating_nlrs%in%strong_pav_ogs]
+
+```
+
+
+```{r}
+
+og_subset <- lineage_differentiating_het
+
+plot_df <- df[,colnames(df) %in% og_subset ]
+
+
+plot_df[rownames(plot_df) %in% lineage_info$isolate[lineage_info$lineage == 2],][plot_df[rownames(plot_df) %in% lineage_info$isolate[lineage_info$lineage == 2],] == 1] <- 2
+
+plot_df[rownames(plot_df) %in% lineage_info$isolate[lineage_info$lineage == 3],][plot_df[rownames(plot_df) %in% lineage_info$isolate[lineage_info$lineage == 3],] == 1] <- 3
+
+plot_df[rownames(plot_df) %in% lineage_info$isolate[lineage_info$lineage == 4],][plot_df[rownames(plot_df) %in% lineage_info$isolate[lineage_info$lineage == 4],] == 1] <- 4
+
+tree_no_lineage_1 <- keep.tip(tree, tree$tip.label[match(lineage_info$isolate, tree$tip.label)])
+
+colors = c('white', '#F8766D', '#00BA38', '#619CFF')
+
+par(mar=c(1,1,1,1))
+
+pdf('heatmap_het.pdf', width = 6.5, height = 5)
+
+phylo.heatmap(tree_no_lineage_1, plot_df, fsize = 0.35, labels = FALSE, colors=colors,legend=FALSE, mar = c(0.5,0.5,0.5,0.5))
+
+dev.off()
+
+```
+
+```{r}
+og_subset <- lineage_differentiating_nlrs
+
+plot_df <- df[,colnames(df) %in% og_subset ]
+
+
+plot_df[rownames(plot_df) %in% lineage_info$isolate[lineage_info$lineage == 2],][plot_df[rownames(plot_df) %in% lineage_info$isolate[lineage_info$lineage == 2],] == 1] <- 2
+
+plot_df[rownames(plot_df) %in% lineage_info$isolate[lineage_info$lineage == 3],][plot_df[rownames(plot_df) %in% lineage_info$isolate[lineage_info$lineage == 3],] == 1] <- 3
+
+plot_df[rownames(plot_df) %in% lineage_info$isolate[lineage_info$lineage == 4],][plot_df[rownames(plot_df) %in% lineage_info$isolate[lineage_info$lineage == 4],] == 1] <- 4
+
+tree_no_lineage_1 <- keep.tip(tree, tree$tip.label[match(lineage_info$isolate, tree$tip.label)])
+
+colors = c('white', '#F8766D', '#00BA38', '#619CFF')
+
+par(mar=c(1,1,1,1))
+
+pdf('heatmap_nlrs.pdf', width = 6.5, height = 5)
+
+phylo.heatmap(tree_no_lineage_1, plot_df, fsize = 0.35, labels = FALSE, colors=colors,legend=FALSE, mar = c(0.5,0.5,0.5,0.5))
+
+dev.off()
+```
+
+```{r}
+## co-varying pairs NLR,HET
+
+##present in lineage 2, absent in lineage 3
+
+c('OG0011044','OG0010942')
+c('OG0011100','OG0011352')
+
+
+##present in lineage 3, absent in lineage 2
+c('OG0011748','OG0010935')
+
+```
+

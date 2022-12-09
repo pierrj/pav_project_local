@@ -1,0 +1,45 @@
+---
+title: "test_corrs"
+output: html_document
+date: '2022-12-02'
+---
+
+```{r}
+library(data.table)
+
+```
+
+
+```{r}
+
+df <- data.frame(fread('x_train.gene_info.full_model.rice_blast.txt'))
+
+```
+
+```{r}
+df
+```
+
+
+
+```{r}
+
+cor(df$lengths, df$H3K27me3)
+
+```
+
+```{r}
+
+for (i in colnames(df)){
+  print(i)
+  print(cor(df$lengths, df[i]), method='spearman')
+}
+
+```
+
+```{r}
+
+cor(df$H3K27ac, df$cm_expression)
+
+```
+
