@@ -183,8 +183,8 @@ continuous_variables <- c(
 )
 
 legend_labels_continuous <- c(
-  'Gene GC Content',
-  'Average Flanking GC Content (1kbp)',
+  'Gene AT Content',
+  'Average Flanking AT Content (1kbp)',
   'Gene Length',
   'Expression: Culture (TPM)',
   'Expression: In Planta (TPM)'
@@ -230,10 +230,10 @@ for (i in seq(from=1,to=length(continuous_variables))){
   plot_df <- data.frame(
     value = c(vector_variable_pav_rice, vector_variable_conserved_rice,
               vector_variable_pav_wheat, vector_variable_conserved_wheat),
-    group = c(rep('Rice PAV',length(vector_variable_pav_rice)),
-              rep('Rice Conserved',length(vector_variable_conserved_rice)),
-              rep('Wheat PAV',length(vector_variable_pav_wheat)),
-              rep('Wheat Conserved',length(vector_variable_conserved_wheat)))
+    group = c(rep('Rice Blast (PAV)',length(vector_variable_pav_rice)),
+              rep('Rice Blast (Conserved)',length(vector_variable_conserved_rice)),
+              rep('Wheat Blast (PAV)',length(vector_variable_pav_wheat)),
+              rep('Wheat Blast (Conserved)',length(vector_variable_conserved_wheat)))
   )
   
   p <- ggplot(data=plot_df, aes(x=value, color=group)) +

@@ -36,41 +36,7 @@ write.tree(tree, file='test_rooted_tree.txt')
 
 ```
 
-```{r}
 
-## node are 91 and 129
-
-lineage_1_node <- 91
-
-descendants <- getDescendants(tree, lineage_1_node)
-
-descendants_lineage_1 <- descendants[descendants <= ncol(df)]
-
-lineage_1_isolates <- tree$tip.label[descendants_lineage_1]
-
-lineage_2_node <- 129
-
-descendants <- getDescendants(tree, lineage_2_node)
-
-descendants_lineage_2 <- descendants[descendants <= ncol(df)]
-
-lineage_2_isolates <- tree$tip.label[descendants_lineage_2]
-
-lineage_info <- data.frame(
-  c(lineage_1_isolates, lineage_2_isolates),
-  c(rep(1, length(lineage_1_isolates)), rep(2, length(lineage_2_isolates)))
-)
-
-colnames(lineage_info) <- c("isolate", "lineage")
-
-output.file <- file('lineage_info.txt', "wb") ## to get unix line endings
-
-write.table(lineage_info, file = output.file, quote = FALSE, col.names = FALSE, row.names = FALSE)
-
-close(output.file)
-
-
-```
 
 ```{r}
 ## read lineage_info

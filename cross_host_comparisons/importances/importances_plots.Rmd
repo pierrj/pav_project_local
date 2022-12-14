@@ -72,7 +72,7 @@ df <- data.frame(fread(file))
 
 df$Feature[df$Feature == 'H3K27me3'] <- 'H3K27me3 Signal'
 df$Feature[df$Feature == 'lengths'] <- 'Gene length'
-df$Feature[df$Feature == 'flanking_1kb_gc'] <- 'Flanking GC Content'
+df$Feature[df$Feature == 'flanking_1kb_gc'] <- 'Flanking AT Content'
 df$Feature[df$Feature == 'pfam'] <- 'Has PFAM Annotation?'
 df$Feature[df$Feature == 'eccdna_cov'] <- 'CircleSeq Signal'
 df$Feature[df$Feature == 'any_te'] <- 'Has TE Nearby?'
@@ -84,7 +84,7 @@ df$Feature[df$Feature == 'cm_expression'] <- 'Expression in Culture'
 df$Feature[df$Feature == 'gene_nearby'] <- 'Has Gene Nearby?'
 df$Feature[df$Feature == 'tm'] <- 'Has TM Domain?'
 df$Feature[df$Feature == 'signalp'] <- 'Has Signal Peptide?'
-df$Feature[df$Feature == 'gene_gc'] <- 'Gene GC Content'
+df$Feature[df$Feature == 'gene_gc'] <- 'Gene AT Content'
 df$Feature[df$Feature == 'ip_expression'] <- 'Expression in Planta'
 df$Feature[df$Feature == 'effectorp'] <- 'Is Predicted Effector?'
 
@@ -111,7 +111,7 @@ for (i in seq(from=1,to=length(files))){
   
   df$Feature[df$Feature == 'H3K27me3'] <- 'H3K27me3 Signal'
   df$Feature[df$Feature == 'lengths'] <- 'Gene length'
-  df$Feature[df$Feature == 'flanking_1kb_gc'] <- 'Flanking GC Content'
+  df$Feature[df$Feature == 'flanking_1kb_gc'] <- 'Flanking AT Content'
   df$Feature[df$Feature == 'pfam'] <- 'Has PFAM Annotation?'
   df$Feature[df$Feature == 'eccdna_cov'] <- 'CircleSeq Signal'
   df$Feature[df$Feature == 'any_te'] <- 'Has TE Nearby?'
@@ -123,7 +123,7 @@ for (i in seq(from=1,to=length(files))){
   df$Feature[df$Feature == 'gene_nearby'] <- 'Has Gene Nearby?'
   df$Feature[df$Feature == 'tm'] <- 'Has TM Domain?'
   df$Feature[df$Feature == 'signalp'] <- 'Has Signal Peptide?'
-  df$Feature[df$Feature == 'gene_gc'] <- 'Gene GC Content'
+  df$Feature[df$Feature == 'gene_gc'] <- 'Gene AT Content'
   df$Feature[df$Feature == 'ip_expression'] <- 'Expression in Planta'
   df$Feature[df$Feature == 'effectorp'] <- 'Is Predicted Effector?'
   

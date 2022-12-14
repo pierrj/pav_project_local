@@ -22,7 +22,7 @@ continuous_variables <- c(
 )
 
 legend_labels_continuous <- c(
-  'GC Content',
+  'AT Content',
   'Normalized in Culture RNAseq Signal',
   'Normalized in Planta RNAseq Signal'
 )
@@ -65,10 +65,10 @@ for (i in seq(from=1,to=length(continuous_variables))){
   plot_df <- data.frame(
     value = c(vector_shuffled_rice, vector_del_rice,
               vector_shuffled_wheat, vector_del_wheat),
-    group = c(rep('Rice Baseline',length(vector_shuffled_rice)),
-              rep('Rice Deletion',length(vector_del_rice)),
-              rep('Wheat Baseline',length(vector_shuffled_wheat)),
-              rep('Wheat Deletion',length(vector_del_wheat)))
+    group = c(rep('Rice Blast Baseline',length(vector_shuffled_rice)),
+              rep('Rice Blast Deletion',length(vector_del_rice)),
+              rep('Wheat Blast Baseline',length(vector_shuffled_wheat)),
+              rep('Wheat Blast Deletion',length(vector_del_wheat)))
   )
   
   p <- ggplot(data=plot_df, aes(x=value, color=group)) +

@@ -46,7 +46,6 @@ df <- df[, (! colnames(df) %in% lineage_info$isolate[lineage_info$lineage == 1])
 
 lineage_info <- lineage_info[lineage_info$lineage != 1,]
 
-
 ```
 
 ```{r}
@@ -193,6 +192,15 @@ length(get_pca_var(all_pca)$contrib[,pc][get_pca_var(all_pca)$contrib[,pc] > con
 # sum of percentage made up of pc by these genes
 sum(get_pca_var(all_pca)$contrib[,pc][get_pca_var(all_pca)$contrib[,pc] > contrib_cutoff])
 
+pc <- 2
+contrib_cutoff <- 0.1
+
+# number of genes with contributions greater than contrib_cutoff
+length(get_pca_var(all_pca)$contrib[,pc][get_pca_var(all_pca)$contrib[,pc] > contrib_cutoff])
+
+# sum of percentage made up of pc by these genes
+sum(get_pca_var(all_pca)$contrib[,pc][get_pca_var(all_pca)$contrib[,pc] > contrib_cutoff])
+
 
 ```
 
@@ -209,6 +217,8 @@ pc <- 2
 pc2_names <- names(get_pca_var(all_pca)$contrib[,pc][get_pca_var(all_pca)$contrib[,pc] > 0.1])
 
 ogs_to_plot <- c(pc1_names, pc2_names)
+
+length(ogs_to_plot)
 
 ```
 
@@ -259,21 +269,6 @@ length(colnames(df_pc1)[colnames(df_pc1) %in% effector_ogs])
 ```
 
 ```{r}
-## comparison of ratio of effectors to noneffectors in PC1
-
-## in PC1
-
-print(length(colnames(df_pc1)[colnames(df_pc1) %in% effector_ogs])/length(colnames(df_pc1)[! (colnames(df_pc1) %in% effector_ogs)]))
-
-## in all
-
-print(length(colnames(df)[colnames(df) %in% effector_ogs])/length(colnames(df)[! (colnames(df) %in% effector_ogs)]))
-
-
-
-```
-
-```{r}
 ## get all orthogroups that contribute to more than contrib_cutoff percent of PC1 and PC2 for heatmap
 pc <- 1
 
@@ -288,6 +283,58 @@ lineage_differentiating_ogs <- c(pc1_names, pc2_names)
 length(lineage_differentiating_ogs)
 
 ```
+
+```{r}
+## reread in PAV matrix
+df <- data.frame(fread('../../pipeline_methods/pav_matrix.txt', na.strings = ''), row.names =1)
+
+colnames(df)[startsWith(colnames(df),'X')] <- gsub('X', '', colnames(df)[startsWith(colnames(df),'X')])
+
+colnames(df) <- gsub('\\.', '-', colnames(df))
+
+## drop NI907
+
+df <- subset(df, select = -c(NI907))
+
+orthogroups <- rownames(df)
+
+
+```
+
+
+
+```{r}
+
+## percentage of effectors in lineage_differentiating orthogroups
+print(length(lineage_differentiating_ogs[lineage_differentiating_ogs %in% effector_ogs])/length(lineage_differentiating_ogs)*100)
+
+## percentage of effectors in all orthogroups
+print(length(orthogroups[orthogroups %in% effector_ogs])/length(orthogroups)*100)
+
+## reread in PAV matrix
+df <- data.frame(fread('../../pipeline_methods/pav_matrix.txt', na.strings = ''), row.names =1)
+
+colnames(df)[startsWith(colnames(df),'X')] <- gsub('X', '', colnames(df)[startsWith(colnames(df),'X')])
+
+colnames(df) <- gsub('\\.', '-', colnames(df))
+
+## drop NI907
+
+df <- subset(df, select = -c(NI907))
+
+orthogroups <- rownames(df)
+
+df <- df[rowSums(df) != ncol(df),]
+df <- df[rowSums(df) != 0,]
+
+variable_orthogroups <- rownames(df)
+
+## percentage of effectors in variable orthogroups
+print(length(variable_orthogroups[variable_orthogroups %in% effector_ogs])/length(variable_orthogroups)*100)
+
+
+```
+
 
 
 ```{r}

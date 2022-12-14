@@ -15,8 +15,8 @@ library(ggpubr)
 # read in tab output from plot profile
 
 hosts <- c(
-  'rice'
-  # 'wheat'
+  'rice',
+  'wheat'
 )
 
 paths <- c(
@@ -25,77 +25,43 @@ paths <- c(
 )
 
 regions_bed <- c(
-  # 'all_DEL.bed',
+  'all_DEL.bed',
   'gene_DEL.bed',
-  # 'te_DEL.bed',
+  'te_DEL.bed',
   'shuffled_DEL.bed',
   'all_genes.bed',
-  # 'deleted_more_than_five_times.bed',
-  'deleted_more_than_four_times.bed',
-  # 'deleted_less_than_five_times.bed',
-  'deleted_less_than_four_times.bed'
+  'all_tes.bed'
 )
 
 regions <- c(
-  # 'All',
-  'Gene-containing',
-  # 'TE-containing',
+  'All Deletions',
+  'Gene-containing Deletions',
+  'TE-containing Deletions',
   'Random',
   'All Genes',
-  # 'More than five',
-  'More than four',
-  # 'Less than five',
-  'Less than four'
+  'All TEs'
 )
 
 treatment_file_endings <- c(
-  '_cm_expression.tab',
-  '_ip_expression.tab',
   '_genes.tab',
-  '_gc.tab',
-  '_tes.tab',
-  '_eccdna.tab',
-  '_H3K27ac.tab',
-  '_H3K27me3.tab',
-  '_H3K36me3.tab',
-  '_methylation.tab'
+  '_tes.tab'
 )
 
 outputs <- c(
-  'plot_profile_allregiontypes_cm_expression.pdf',
-  'plot_profile_allregiontypes_ip_expression.pdf',
   'plot_profile_allregiontypes_genes.pdf',
-  'plot_profile_allregiontypes_gc.pdf',
-  'plot_profile_allregiontypes_tes.pdf',
-  'plot_profile_allregiontypes_eccdna.pdf',
-  'plot_profile_allregiontypes_H3K27ac.pdf',
-  'plot_profile_allregiontypes_H3K27me3.pdf',
-  'plot_profile_allregiontypes_H3K36me3.pdf',
-  'plot_profile_allregiontypes_methylation.pdf'
+  'plot_profile_allregiontypes_tes.pdf'
 )
 
 labels <- c(
-  "Expression In Culture (RPM)",
-  "Expression In Planta (RPM)",
   "Number of Genes",
-  "% GC Content",
-  "Number of TEs",
-  "EccDNA Sequencing (RPM)",
-  "H3K27ac \n(Log2 Input/Control)",
-  "H3K27me3 \n(Log2 Input/Control)",
-  "H3K36me3 \n(Log2 Input/Control)",
-  "% Methylated Cytosines"
+  "Number of TEs"
 )
 
 for (l in seq(from=1,to=length(hosts))){
   host = hosts[l]
   path = paths[l]
   
-  if (host == "rice"){
-    count = length(treatment_file_endings)
-  } else {
-    count = 5
-  }
+  count = length(treatment_file_endings)
   
   for (i in seq(from = 1, to = count)){
   
@@ -130,11 +96,11 @@ for (l in seq(from=1,to=length(hosts))){
       }
     
     p <- ggplot(df, aes(x=bin, y=val, group=label)) + geom_line(aes(color=label), lwd=0.5) + theme_classic() +
-          scale_x_continuous(labels=c('-1kb', 'Start', 'End', '+1kb'), breaks=c(1,100,150,250)) + xlab('')+
-          theme(axis.text=element_text(size=6), axis.title=element_text(size=6), legend.title=element_blank(), legend.text=element_text(size=8)) +          ylab(label)+
+          scale_x_continuous(labels=c('-5kbp', 'Start', 'End', '+5kbp'), breaks=c(1,500,750,1250)) + xlab('')+
+          theme(axis.text=element_text(size=6), axis.title=element_text(size=6), legend.title=element_blank(), legend.text=element_text(size=8)) +                ylab(label)+
           theme(legend.position="none")
         
-    ggsave(paste(host, '_', output,sep=''), plot=p, width=6.5/2, height=7/5)
+    ggsave(paste(host, '_', output,sep=''), plot=p, width=6.5/2, height=3/2)
     
   }
   
@@ -148,11 +114,11 @@ for (l in seq(from=1,to=length(hosts))){
 
 p <- ggplot(df, aes(x=bin, y=val, group=label)) + geom_line(aes(color=label), lwd=0.5) + theme_classic() +
       scale_x_continuous(labels=c('-0.5kb', 'Breakpoint', '0.5kb'), breaks=c(1,51,101)) + xlab('')+
-      theme(axis.text=element_text(size=6), axis.title=element_text(size=8), legend.title=element_blank(), legend.text=element_text(size=8)) +          ylab(label)+guides(color=guide_legend(ncol=5))
+      theme(axis.text=element_text(size=6), axis.title=element_text(size=8), legend.title=element_blank(), legend.text=element_text(size=6)) +          ylab(label)+guides(color=guide_legend(ncol=6))
 
 leg <- get_legend(p)
 my_legend <- as_ggplot(leg)
-ggsave('legend_abstract.pdf', plot = leg, width = 6.5, height = 0.5)
+ggsave('legend_abstract.pdf', plot = leg, width = 6.5, height = 0.25)
 
 ```
 
