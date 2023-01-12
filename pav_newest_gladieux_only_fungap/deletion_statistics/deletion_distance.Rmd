@@ -1,4 +1,25 @@
 ---
+#MIT License
+#
+#Copyright (c) 2023 Pierre Michel Joubert
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
 title: "deletion_distance"
 output: html_document
 date: '2022-11-03'
@@ -15,7 +36,7 @@ library(data.table)
 
 ```{r}
 
-## read in files
+## read in gene info
 read_locations = function(genome) {
   df_gene_info <- data.frame(fread('../random_forest/gene_info_for_rf.txt', na.strings = ''))
 
@@ -53,7 +74,7 @@ read_locations = function(genome) {
   return(df_gene_info)
 }
 
-## read in comparison pav_genes
+## read in pav_genes for comparison
 read_comparison_pav_gene = function(genome) {
   df_gene_info <- data.frame(fread('../random_forest/gene_info_for_rf.txt', na.strings = ''))
   
@@ -93,7 +114,7 @@ read_comparison_pav_gene = function(genome) {
   return(df_gene_info)
 }
 
-## read in comparison conserved_genes
+## read in conserved_genes for comparison
 read_comparison_conserved_gene = function(genome) {
   df_gene_info <- data.frame(fread('../random_forest/gene_info_for_rf.txt', na.strings = ''))
   
@@ -133,6 +154,7 @@ read_comparison_conserved_gene = function(genome) {
   return(df_gene_info)
 }
 
+## function that calculates distance to element, upstream downstream and closest
 element_distance = function(x, output, subset_per_scaffold) {
   scaffold = x['scaffold']
   start = as.numeric(x['start'])
@@ -178,6 +200,7 @@ element_distance = function(x, output, subset_per_scaffold) {
   }
 }
 
+# read in chromsizes files
 read_chromsizes = function(genome) {
   chromsizes_file = paste("../random_forest/chrom_sizes/",genome,".chromsizes", sep='')
 
@@ -188,7 +211,7 @@ read_chromsizes = function(genome) {
   return(chromsizes)
 }
 
-## check if there is enough space around the gene to call
+## check if there is enough space around the gene to call true/false nearby
 enough_space = function(x, distance,chromsizes) {
   scaffold = x['scaffold']
   start = as.numeric(x['start'])
@@ -201,6 +224,7 @@ enough_space = function(x, distance,chromsizes) {
   }
 }
  
+# call if an element is nearby true/false
 nearby_element = function(x, class, distance, enough_space_column, subset_per_scaffold) {
   scaffold = x['scaffold']
   start = as.numeric(x['start'])
@@ -361,6 +385,7 @@ colnames(df_deletion_info) <- c("scaffold", "start", "end", "orientation", "id",
                             'pav_nearby', 'conserved_nearby'
                             )
 
+# get previously calculated statistics for distances, basically just to get which genes are pav/conserved
 df_gene_info <- data.frame(fread('../random_forest/gene_info_for_rf.txt', na.strings = ''))
 
 colnames(df_gene_info) <- c("scaffold", "start", "end", "orientation", "id", "orthogroups", 
@@ -398,6 +423,7 @@ for (genome in genomes){
   
   genome_full_name <- genome
   
+  # read in files for comparisons
   locations <- read_locations(genome)
   comparison_pav <- read_comparison_pav_gene(genome)
   comparison_conserved <- read_comparison_conserved_gene(genome)
@@ -407,6 +433,8 @@ for (genome in genomes){
   
   outputs = c("upstream", "downstream", "closest")
   
+  ## loop per scaffold to speed things up
+  # get distances
   for (comparison_string in c('pav', 'conserved')){
     
     if (comparison_string == 'pav'){
@@ -431,6 +459,7 @@ for (genome in genomes){
   
   chromsizes <- read_chromsizes(genome_full_name)
   
+  # set minimum distance to call whether a pav/conserved gene is nearby
   distance_pav_min = 1000
   
   locations$enough_space_pav = apply(locations,1,enough_space,distance=distance_pav_min,chromsizes=chromsizes)
@@ -439,6 +468,7 @@ for (genome in genomes){
   
   locations$enough_space_conserved = apply(locations,1,enough_space,distance=distance_conserved_min,chromsizes=chromsizes)
   
+  # call true/false whether a pav/conserved gene is nearby
   for (comparison_string in c('pav', 'conserved')){
     
     if (comparison_string == 'pav'){
@@ -464,7 +494,7 @@ for (genome in genomes){
     for (scaffold in unique(locations$scaffold)){
       locations_per_scaffold = locations[locations$scaffold == scaffold,]
       subset_per_scaffold = comparison[comparison$scaffold == scaffold,]
-      # there will always be at least one gene...
+      # there will always be at least one gene so no need for if/then statements
       column = c(column, apply(locations_per_scaffold,1,nearby_element,
                                        subset_per_scaffold=subset_per_scaffold,
                                        distance=distance,
