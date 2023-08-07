@@ -88,3 +88,9 @@ df_cluster_proportions[order(df_cluster_proportions$clusters),]
 
 ```
 
+```{r}
+
+sum(df_cluster_proportions$number_cluster_pav)
+
+```
+
